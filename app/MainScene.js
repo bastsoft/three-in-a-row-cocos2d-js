@@ -1,4 +1,4 @@
-import {ASideLayer, layout as layoutASideLayer} from './ASideLayer.js';
+import {ASideLayer, layout as layoutASideLayer} from './aSide/ASideLayer.js';
 import {GameLayer, layout as layoutGameLayer} from "./GameLayer.js";
 
 const layout = {
