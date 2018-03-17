@@ -1,4 +1,5 @@
-import StepScoreLayer from "./StepScoreLayer.js";
+import ScoreStepLayer from "./ScoreStepLayer.js";
+import ScoreTaskLayer from "./ScoreTaskLayer.js";
 
 const layout = {
     width: 300
@@ -15,13 +16,15 @@ const ASideLayer = cc.LayerColor.extend({
         this.setColor(grayColor);
         this.setPosition(cc.p(0, 0));
 
-
-        const stepScoreLayer = new StepScoreLayer();
         const size = this.getContentSize();
 
-        stepScoreLayer.setPosition(cc.p(size.width / 2, size.height - 100));
+        const scoreStepLayer = new ScoreStepLayer();
+        scoreStepLayer.setPosition(cc.p(size.width / 2, size.height - 100));
+        this.addChild(scoreStepLayer);
 
-        this.addChild(stepScoreLayer);
+        const scoreTaskLayer = new ScoreTaskLayer();
+        scoreTaskLayer.setPosition(cc.p(size.width / 2, size.height - 300));
+        this.addChild(scoreTaskLayer);
     }
 });
 

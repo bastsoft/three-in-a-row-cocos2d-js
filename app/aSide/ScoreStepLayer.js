@@ -1,4 +1,4 @@
-const StepScoreLayer = cc.Layer.extend({
+const ScoreStepLayer = cc.Layer.extend({
     score: 12,
     labelScore: null,
 
@@ -33,4 +33,4 @@ const StepScoreLayer = cc.Layer.extend({
     // }
 });
 
-export default StepScoreLayer;
+export default ScoreStepLayer;
