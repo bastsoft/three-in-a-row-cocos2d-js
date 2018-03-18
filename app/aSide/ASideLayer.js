@@ -1,5 +1,6 @@
 import ScoreStepLayer from "./ScoreStepLayer.js";
 import ScoreTaskLayer from "./ScoreTaskLayer.js";
+import MenuLayer from "./MenuLayer.js";
 
 const layout = {
     width: 300
@@ -25,6 +26,10 @@ const ASideLayer = cc.LayerColor.extend({
         const scoreTaskLayer = new ScoreTaskLayer();
         scoreTaskLayer.setPosition(cc.p(size.width / 2, size.height - 300));
         this.addChild(scoreTaskLayer);
+
+        const menuLayer = new MenuLayer();
+        menuLayer.setPosition(cc.p(size.width / 2, 200));
+        this.addChild(menuLayer);
     }
 });
 
