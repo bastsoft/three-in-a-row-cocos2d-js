@@ -1,5 +1,6 @@
 import {ASideLayer, layout as layoutASideLayer} from './aSide/ASideLayer.js';
 import {GameLayer, layout as layoutGameLayer} from "./GameLayer.js";
+import WindowLooseLayer from "./WindowLooseLayer.js";
 
 const layout = {
     width: layoutGameLayer.width + layoutASideLayer.width,
@@ -17,6 +18,20 @@ const MainScene = cc.Scene.extend({
 
         this.addChild(aside);
         this.addChild(gameLayer);
+
+        this.windowLoose = new WindowLooseLayer();
+
+        cc.eventManager.addListener(cc.EventListener.create({
+            event: cc.EventListener.CUSTOM,
+            eventName: "show_layer_loose",
+            callback: this.addChild.bind(this, this.windowLoose)
+        }), 1);
+
+        cc.eventManager.addListener(cc.EventListener.create({
+            event: cc.EventListener.CUSTOM,
+            eventName: "hide_layer_loose",
+            callback: this.removeChild.bind(this, this.windowLoose)
+        }), 1);
     }
 });
 

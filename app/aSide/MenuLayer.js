@@ -3,7 +3,7 @@ const MenuLayer = cc.Layer.extend({
         this._super();
 
         const item1 = new cc.MenuItemFont("Бустер", this.onPushBooster, this);
-        const item2 = new cc.MenuItemFont("Окно проигрыша", this.onPushLooseWindow, this);
+        const item2 = new cc.MenuItemFont("Окно проигрыша", this.onPushWindowLoose, this);
         const item3 = new cc.MenuItemFont("Окно выигрыша", this.onPushWinWindow, this);
 
         const menu = new cc.Menu(item1, item2, item3);
@@ -13,17 +13,16 @@ const MenuLayer = cc.Layer.extend({
 
         this.addChild(menu);
     },
-
-    onPushWinWindow() {
-        cc.log("onPushWinWindow!");
-    },
-
     onPushBooster() {
         cc.log("onPushBooster!");
     },
 
-    onPushLooseWindow() {
-        cc.log("onPushLooseWindow!");
+    onPushWinWindow() {
+        cc.log("onPushWindowWin!");
+    },
+
+    onPushWindowLoose() {
+        cc.eventManager.dispatchEvent(new cc.EventCustom("show_layer_loose"));
     }
 });
 
