@@ -1,6 +1,8 @@
-const WindowLooseLayer = cc.LayerColor.extend({
-    onEnter: function () {
+const PopupEndGame = cc.LayerColor.extend({
+    ctor: function (isWin = true) {
         this._super();
+
+        this.isWin = isWin;
 
         const ws = cc.director.getWinSize();
         const grayColor = cc.color(100, 100, 100, 0);
@@ -14,26 +16,28 @@ const WindowLooseLayer = cc.LayerColor.extend({
         const winSize = this.getContentSize();
         const font = new cc.LabelTTF();
 
+        font.string = this.isWin ? "Ты выиграл" : "Ты проиграл";
         font.font = "100px 'Arial'";
-        font.string = "Ты проиграл";
         font.fillStyle = cc.color(0, 0, 0);
-        this.addChild(font);
         font.x = winSize.width / 2;
         font.y = winSize.height - 100;
 
-        const item1 = new cc.MenuItemFont("Рестарт", this.onPushRestart, this);
-        item1.setFontSize(80);
-        item1.setFontName("Arial");
-        const item2 = new cc.MenuItemFont("Выход", this.onPushExit, this);
-        item2.setFontSize(80);
-        item2.setFontName("Arial");
-        const item3 = new cc.MenuItemFont("+ Ходы", this.onPushAddStep, this);
-        item3.setFontSize(80);
-        item3.setFontName("Arial");
+        this.addChild(font);
 
-        const menu = new cc.Menu(item1, item2, item3);
+        const items = [
+            new cc.MenuItemFont("Рестарт", this.onPushRestart, this),
+            new cc.MenuItemFont("Выход", this.onPushExit, this),
+            new cc.MenuItemFont("+ Ходы", this.onPushAddStep, this)
+        ].map((item) => {
+            item.setFontSize(80);
+            item.setFontName("Arial");
 
+            return item;
+        });
 
+        this.isWin && items.pop();
+
+        const menu = new cc.Menu(...items);
         menu.alignItemsVertically();
         menu.setPosition(winSize.width / 2, winSize.height / 2);
 
@@ -45,7 +49,9 @@ const WindowLooseLayer = cc.LayerColor.extend({
     },
 
     onPushExit() {
-        cc.eventManager.dispatchEvent(new cc.EventCustom("hide_layer_loose"));
+        cc.eventManager.dispatchEvent(
+            new cc.EventCustom(this.isWin ? "hide_layer_win" : "hide_layer_loose")
+        );
     },
 
     onPushAddStep() {
@@ -53,4 +59,4 @@ const WindowLooseLayer = cc.LayerColor.extend({
     }
 });
 
-export default WindowLooseLayer;
+export default PopupEndGame;

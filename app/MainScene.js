@@ -1,6 +1,6 @@
 import {ASideLayer, layout as layoutASideLayer} from './aSide/ASideLayer.js';
 import {GameLayer, layout as layoutGameLayer} from "./GameLayer.js";
-import WindowLooseLayer from "./WindowLooseLayer.js";
+import PopupEndGame from "./PopupEndGame.js";
 
 const layout = {
     width: layoutGameLayer.width + layoutASideLayer.width,
@@ -14,23 +14,45 @@ const MainScene = cc.Scene.extend({
         const aside = new ASideLayer();
         const gameLayer = new GameLayer();
 
-        gameLayer.init();
+        gameLayer.init([
+            ["", "", "", "", "", "x", "x", "x", "x"],
+            ["", "", "", "", "", "x", "x", "x", "x"],
+            ["", "", "", "", "", "x", "x", "x", "x"],
+            ["", "", "", "", "", "x", "x", "x", "x"],
+            ["", "", "", "", "", "x", "x", "x", "x"],
+            ["", "", "", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", "", "", ""]
+        ]);
 
         this.addChild(aside);
         this.addChild(gameLayer);
+        this._createWinPopup();
+        this._createLoosePopup();
+    },
 
-        this.windowLoose = new WindowLooseLayer();
+    _createWinPopup() {
+        this._addListenerToPopup(true);
+    },
+
+    _createLoosePopup() {
+        this._addListenerToPopup(false);
+    },
+
+    _addListenerToPopup(isWin) {
+        const currentChild = new PopupEndGame(isWin);
 
         cc.eventManager.addListener(cc.EventListener.create({
             event: cc.EventListener.CUSTOM,
-            eventName: "show_layer_loose",
-            callback: this.addChild.bind(this, this.windowLoose)
+            eventName: isWin ? "show_layer_win" : "show_layer_loose",
+            callback: this.addChild.bind(this, currentChild)
         }), 1);
 
         cc.eventManager.addListener(cc.EventListener.create({
             event: cc.EventListener.CUSTOM,
-            eventName: "hide_layer_loose",
-            callback: this.removeChild.bind(this, this.windowLoose)
+            eventName: isWin ? "hide_layer_win" : "hide_layer_loose",
+            callback: this.removeChild.bind(this, currentChild)
         }), 1);
     }
 });

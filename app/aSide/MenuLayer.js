@@ -18,7 +18,7 @@ const MenuLayer = cc.Layer.extend({
     },
 
     onPushWinWindow() {
-        cc.log("onPushWindowWin!");
+        cc.eventManager.dispatchEvent(new cc.EventCustom("show_layer_win"));
     },
 
     onPushWindowLoose() {
