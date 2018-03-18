@@ -1,5 +1,5 @@
 import {ASideLayer, layout as layoutASideLayer} from './aSide/ASideLayer.js';
-import {GameLayer, layout as layoutGameLayer} from "./GameLayer.js";
+import {GameLayer, layout as layoutGameLayer} from "./Game/GameLayer.js";
 import PopupEndGame from "./PopupEndGame.js";
 
 const layout = {
