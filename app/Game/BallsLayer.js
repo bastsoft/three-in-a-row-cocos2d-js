@@ -1,18 +1,46 @@
 const BallsLayer = cc.Layer.extend({
-    ctor: function (tileArray, tileSize, midTileSize) {
-        this._super();
+    visitedTiles: [],
 
+    ctor: function (tileArray, tileSize, midTileSize, midPoint) {
+        this._super();
+        this.midPoint = midPoint;
         this.midTileSize = midTileSize;
         this.tileSize = tileSize;
-        const sizeBoard = (this.tileSize * tileArray.length);
-        this.width = sizeBoard;
-        this.height = sizeBoard;
+        this.sizeBoard = (this.tileSize * tileArray.length);
+        this.width = this.sizeBoard;
+        this.height = this.sizeBoard;
 
-        this.tileArray = tileArray.forEach((row, i) => row.forEach((cellText, j) => this._addTile(
+        this.tileArray = tileArray.map((row, i) => row.map((cellText, j) => this._addTile(
             j * this.tileSize + this.midTileSize,
             i * this.tileSize + this.midTileSize,
             cellText
         )));
+
+        const touchListener = cc.EventListener.create({
+            event: cc.EventListener.MOUSE,
+            onMouseDown: this._onMouseDown.bind(this)
+        });
+        cc.eventManager.addListener(touchListener, this);
+    },
+
+    _onMouseDown(event) {
+        const aSideWidth = 300;
+        const tile = {
+            row: Math.floor((event._y - this.midPoint.y) / this.tileSize),
+            col: Math.floor((event._x - (this.midPoint.x + aSideWidth)) / this.tileSize)
+        };
+
+        const currentSprite = this.tileArray[tile.row][tile.col];
+
+        this._enabledSelect(currentSprite);
+        this.visitedTiles.push(tile);
+
+        this.startColor = currentSprite.val;
+    },
+
+    _enabledSelect(currentSprite) {
+        currentSprite.setOpacity(128);
+        currentSprite.picked = true;
     },
 
     _addTile: function (x, y, cell) {

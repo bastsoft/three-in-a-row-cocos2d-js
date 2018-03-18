@@ -19,8 +19,9 @@ const GameLayer = cc.LayerColor.extend({
         this.changeWidthAndHeight(layout.width, layout.height);
 
         const size = this.getContentSize();
+        const aSideWidth = 300;
 
-        this.setPosition(cc.p(300, 0));
+        this.setPosition(cc.p(aSideWidth, 0));
 
         const backgroundLayer = cc.LayerGradient.create(
             cc.color(0x00, 0x22, 0x22, 255),
@@ -34,7 +35,7 @@ const GameLayer = cc.LayerColor.extend({
         boardLayer.setPosition(midPoint);
         this.addChild(boardLayer);
 
-        const ballsLayer = new BallsLayer(this.tileArray, this.tileSize, this.midTileSize);
+        const ballsLayer = new BallsLayer(this.tileArray, this.tileSize, this.midTileSize, midPoint);
         ballsLayer.setPosition(midPoint);
         this.addChild(ballsLayer);
     }
