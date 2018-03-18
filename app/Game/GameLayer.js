@@ -1,4 +1,5 @@
 import BoardLayer from "./BoardLayer.js";
+import BallsLayer from "./BallsLayer.js";
 
 const layout = {
     width: 760,
@@ -27,12 +28,15 @@ const GameLayer = cc.LayerColor.extend({
         );
 
         this.addChild(backgroundLayer);
-
+        const midPoint = cc.p((size.width / 2) - sizeBoard / 2, (size.height / 2) - sizeBoard / 2);
 
         const boardLayer = new BoardLayer(this.tileArray, this.tileSize, this.midTileSize);
-        boardLayer.setPosition(cc.p((size.width / 2) - sizeBoard / 2, (size.height / 2) - sizeBoard / 2));
-
+        boardLayer.setPosition(midPoint);
         this.addChild(boardLayer);
+
+        const ballsLayer = new BallsLayer(this.tileArray, this.tileSize, this.midTileSize);
+        ballsLayer.setPosition(midPoint);
+        this.addChild(ballsLayer);
     }
 });
 

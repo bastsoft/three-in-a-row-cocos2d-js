@@ -1,6 +1,7 @@
 import {ASideLayer, layout as layoutASideLayer} from './aSide/ASideLayer.js';
 import {GameLayer, layout as layoutGameLayer} from "./Game/GameLayer.js";
 import PopupEndGame from "./PopupEndGame.js";
+import globes from "../assets/globes.js";
 
 const layout = {
     width: layoutGameLayer.width + layoutASideLayer.width,
@@ -13,6 +14,8 @@ const MainScene = cc.Scene.extend({
 
         const aside = new ASideLayer();
         const gameLayer = new GameLayer();
+
+        cc.spriteFrameCache.addSpriteFrames(...globes);
 
         gameLayer.init([
             ["", "", "", "", "", "x", "x", "x", "x"],
