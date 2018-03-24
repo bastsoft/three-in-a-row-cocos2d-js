@@ -1,18 +1,17 @@
+import model from '../levelModel.js';
+
 const BallsLayer = cc.Layer.extend({
     visitedTiles: {},
     speedAnimation: 0.5,
     animationQueue: [],
 
-    ctor: function (tileArray, tileSize, midTileSize, midPoint) {
+    ctor: function () {
         this._super();
-        this.midPoint = midPoint;
-        this.midTileSize = midTileSize;
-        this.tileSize = tileSize;
-        this.sizeBoard = (this.tileSize * tileArray.length);
-        this.width = this.sizeBoard;
-        this.height = this.sizeBoard;
 
-        this.tileArray = tileArray.map((row, i) => row.map((cellText, j) => this._addTile(i, j, cellText)));
+        this.width = model.sizeBoard;
+        this.height = model.sizeBoard;
+
+        this.tileArray = model.board.map((row, i) => row.map((cellText, j) => this._addTile(i, j, cellText)));
 
         let touchListener = cc.EventListener.create({
             event: cc.EventListener.MOUSE,
@@ -79,7 +78,7 @@ const BallsLayer = cc.Layer.extend({
 
     _creatingNewBallsInTop() {
         const i = this.tileArray.length - 1;
-        const moveDown = cc.MoveBy.create(this.speedAnimation, new cc.Point(0, -this.tileSize));
+        const moveDown = cc.MoveBy.create(this.speedAnimation, new cc.Point(0, -model.tileSize));
 
         for (let j = 0; j < this.tileArray.length - 1; j++) {
             const currentCell = this.tileArray[i][j];
@@ -113,8 +112,8 @@ const BallsLayer = cc.Layer.extend({
             const sprite = this.tileArray[i + addToI][j + addToJ];
 
             sprite.animationAction = [cc.MoveBy.create(this.speedAnimation, new cc.Point(
-                this.tileSize * addToJ * -1,
-                this.tileSize * addToI * -1
+                model.tileSize * addToJ * -1,
+                model.tileSize * addToI * -1
             ))];
 
             this.animationQueue.push(sprite);
@@ -185,8 +184,8 @@ const BallsLayer = cc.Layer.extend({
                     currentSprite.removeFromParent(true);
                     firstSprite.addChild(currentSprite, 0);
                     currentSprite.setPosition(
-                        this.midTileSize - (i + 1) * 4,
-                        this.midTileSize - (i + 1) * 4
+                        model.midTileSize - (i + 1) * 4,
+                        model.midTileSize - (i + 1) * 4
                     );
                 }, this);
 
@@ -203,8 +202,8 @@ const BallsLayer = cc.Layer.extend({
             const spriteThunder = cc.Sprite.createWithSpriteFrame(spriteFrame);
             firstSprite.addChild(spriteThunder, 1);
             spriteThunder.setPosition(
-                this.midTileSize - 10,
-                this.midTileSize - 10
+                model.midTileSize - 10,
+                model.midTileSize - 10
             );
 
             firstSprite.isThunder = typeThunder;
@@ -259,8 +258,8 @@ const BallsLayer = cc.Layer.extend({
         const aSideWidth = 300;
 
         const tile = {
-            row: Math.floor((event._y - this.midPoint.y) / this.tileSize),
-            col: Math.floor((event._x - (this.midPoint.x + aSideWidth)) / this.tileSize)
+            row: Math.floor((event._y - model.midPoint.y) / model.tileSize),
+            col: Math.floor((event._x - (model.midPoint.x + aSideWidth)) / model.tileSize)
         };
 
         const currentSprite = (this.tileArray[tile.row] || [])[tile.col];
@@ -321,6 +320,7 @@ const BallsLayer = cc.Layer.extend({
 
                 this.tileArray[row0][col0] = secondSprite;
                 this.tileArray[row1][col1] = firstSprite;
+                model.setMove();
             }
 
             this._disableSelect(firstSprite);
@@ -355,8 +355,8 @@ const BallsLayer = cc.Layer.extend({
             this.addChild(sprite, 0);
 
             sprite.setPosition(
-                x * this.tileSize + this.midTileSize,
-                y * this.tileSize + this.midTileSize
+                x * model.tileSize + model.midTileSize,
+                y * model.tileSize + model.midTileSize
             );
 
             return sprite;

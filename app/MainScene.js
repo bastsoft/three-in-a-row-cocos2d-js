@@ -1,38 +1,26 @@
-import {ASideLayer, layout as layoutASideLayer} from './aSide/ASideLayer.js';
-import {GameLayer, layout as layoutGameLayer} from "./Game/GameLayer.js";
+import ASideLayer from './aSide/ASideLayer.js';
+import LayoutLayer from "./Game/LayoutLayer.js";
 import PopupEndGame from "./PopupEndGame.js";
 import globes from "../assets/globes.js";
-
-const layout = {
-    width: layoutGameLayer.width + layoutASideLayer.width,
-    height: layoutGameLayer.height
-};
+import model from "./levelModel.js";
 
 const MainScene = cc.Scene.extend({
     onEnter: function () {
         this._super();
 
         const aside = new ASideLayer();
-        const gameLayer = new GameLayer();
+        const gameLayer = new LayoutLayer();
 
         cc.spriteFrameCache.addSpriteFrames(...globes);
 
-        gameLayer.init([
-            ["", "", "", "", "", "x", "x", "x", "x"],
-            ["", "", "", "", "", "x", "x", "x", "x"],
-            ["", "", "", "", "", "x", "x", "x", "x"],
-            ["", "", "", "", "", "x", "x", "x", "x"],
-            ["", "", "", "", "", "x", "x", "x", "x"],
-            ["", "", "", "", "", "", "", "", ""],
-            ["", "", "", "", "", "", "", "", ""],
-            ["", "", "", "", "", "", "", "", ""],
-            ["", "", "", "", "", "", "", "", ""]
-        ]);
+        gameLayer.init();
 
         this.addChild(aside);
         this.addChild(gameLayer);
         this._createWinPopup();
         this._createLoosePopup();
+
+        model.init();
     },
 
     _createWinPopup() {
@@ -60,4 +48,4 @@ const MainScene = cc.Scene.extend({
     }
 });
 
-export {MainScene, layout};
+export default MainScene;

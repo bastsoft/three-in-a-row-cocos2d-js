@@ -1,25 +1,19 @@
-import ScoreStepLayer from "./ScoreStepLayer.js";
+import ScoreMovesLayer from "./ScoreMovesLayer.js";
 import ScoreTaskLayer from "./ScoreTaskLayer.js";
 import MenuLayer from "./MenuLayer.js";
-
-const layout = {
-    width: 300
-};
+import model from '../levelModel.js';
 
 const ASideLayer = cc.LayerColor.extend({
     onEnter: function () {
         this._super();
 
-        const ws = cc.director.getWinSize();
-        const grayColor = cc.color(100, 100, 100, 128);
-
-        this.changeWidthAndHeight(layout.width, ws.height);
-        this.setColor(grayColor);
+        this.changeWidthAndHeight(model.layout.aside.width, model.layout.aside.height);
+        this.setColor(model.colorBoardTitle.darkGray);
         this.setPosition(cc.p(0, 0));
 
         const size = this.getContentSize();
 
-        const scoreStepLayer = new ScoreStepLayer();
+        const scoreStepLayer = new ScoreMovesLayer();
         scoreStepLayer.setPosition(cc.p(size.width / 2, size.height - 100));
         this.addChild(scoreStepLayer);
 
@@ -33,4 +27,4 @@ const ASideLayer = cc.LayerColor.extend({
     }
 });
 
-export {ASideLayer, layout};
+export default ASideLayer;
