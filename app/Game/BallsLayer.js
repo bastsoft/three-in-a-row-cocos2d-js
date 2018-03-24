@@ -28,27 +28,22 @@ const BallsLayer = cc.Layer.extend({
 
     _next() {
         this._checkMatch();
-        this._executeAnimationQueue(() => {
-            this._fallDown(count => {
-                if (count) {
-                    this._next();
-                }
-            });
-
-        });
+        this._executeAnimationQueue(() => this._fallAndNewBalls(this._next.bind(this)));
     },
 
     _executeAnimationQueue(callbackDone) {
-        if (!this.animationQueue.length) {
-            callbackDone();
+        const len = this.animationQueue.length;
+
+        if (!len) {
+            callbackDone(0);
         }
 
         this.animationQueue.forEach((sprite, i) => {
             const animationArr = sprite.animationAction;
-            const isLast = i === this.animationQueue.length - 1;
+            const isLast = i === len - 1;
 
             if (isLast) {
-                animationArr.push(cc.callFunc(callbackDone, this));
+                animationArr.push(cc.callFunc(callbackDone.bind(this, len)));
             }
 
             sprite.runAction(cc.sequence(...animationArr));
@@ -57,9 +52,19 @@ const BallsLayer = cc.Layer.extend({
         this.animationQueue = [];
     },
 
-    _fallDown(callback, count = 0) {
-        let isMoveContinue = 0;
+    _fallAndNewBalls(callbackIfNext, count = 0) {
+        this._fallDown();
+        this._creatingNewBallsInTop();
+        this._executeAnimationQueue((isMoveContinue) => {
+            if (isMoveContinue) {
+                this._fallAndNewBalls(callbackIfNext, isMoveContinue);
+            } else if (count) {
+                callbackIfNext();
+            }
+        });
+    },
 
+    _fallDown() {
         for (let i = 0; i < this.tileArray.length; i++) {
             for (let j = 0; j < this.tileArray.length; j++) {
                 let isMove = false;
@@ -68,20 +73,8 @@ const BallsLayer = cc.Layer.extend({
                     isMove = this._moveFallSprite(isMove, i, j, 1);
                     isMove = this._moveFallSprite(isMove, i, j, 1, (Math.random() >= 0.5) ? 1 : -1);
                 }
-
-                isMoveContinue += isMove;
             }
         }
-
-        this._creatingNewBallsInTop();
-        this._executeAnimationQueue(() => {
-            if (isMoveContinue) {
-                count = count + 1;
-                count = this._fallDown(callback, count);
-            } else {
-                callback(count);
-            }
-        });
     },
 
     _creatingNewBallsInTop() {
@@ -151,7 +144,7 @@ const BallsLayer = cc.Layer.extend({
         if (mObj.match.length && this._isMatchCurrentSprite(mObj.match, i, j, isRow)) {
             mObj.match.push([i, j]);
         } else {
-            this._checkToRemove(mObj.match);
+            this._checkMatch3(mObj.match);
             mObj.match = (this.tileArray[i][j] && this.tileArray[i][j] !== "x") ? [[i, j]] : [];
         }
     },
@@ -170,20 +163,95 @@ const BallsLayer = cc.Layer.extend({
         return false;
     },
 
+    _checkMatch3(matchByColor) {
+        if (matchByColor.length > 4) {
+            matchByColor = matchByColor.slice(matchByColor.length - 4);
+        }
+
+        const containsThunder = matchByColor.map(cor => (this.tileArray[cor[0]][cor[1]] || {}).isThunder).filter(Boolean);
+        const isContainsThunder = containsThunder.length;
+
+        if (matchByColor.length > 3 && !isContainsThunder) {
+            let firstCor = matchByColor.pop();
+            let firstSprite = this.tileArray[firstCor[0]][firstCor[1]];
+            let isHorizontally = true;
+
+            matchByColor.forEach((cor, i) => {
+                isHorizontally = firstCor[0] === cor[0];
+                const currentSprite = this.tileArray[cor[0]][cor[1]];
+
+                const moveToFirst = cc.MoveTo.create(this.speedAnimation, new cc.Point(firstSprite.x + (i * 4), firstSprite.y));
+                const onComplete = cc.callFunc(function () {
+                    currentSprite.removeFromParent(true);
+                    firstSprite.addChild(currentSprite, 0);
+                    currentSprite.setPosition(
+                        this.midTileSize - (i + 1) * 4,
+                        this.midTileSize - (i + 1) * 4
+                    );
+                }, this);
+
+                if (currentSprite) {
+                    currentSprite.animationAction = [moveToFirst, onComplete];
+                    this.animationQueue.push(currentSprite);
+
+                    this.tileArray[cor[0]][cor[1]] = null;
+                }
+            });
+
+            const typeThunder = isHorizontally ? "horizontally" : "vertically";
+            const spriteFrame = cc.spriteFrameCache.getSpriteFrame(typeThunder);
+            const spriteThunder = cc.Sprite.createWithSpriteFrame(spriteFrame);
+            firstSprite.addChild(spriteThunder, 1);
+            spriteThunder.setPosition(
+                this.midTileSize - 10,
+                this.midTileSize - 10
+            );
+
+            firstSprite.isThunder = typeThunder;
+        } else {
+            this._checkToRemove(matchByColor);
+        }
+    },
+
     _checkToRemove(matchByColor) {
         if (matchByColor.length > 2) {
-            matchByColor.forEach(cor => {
-                const currentSprite = this.tileArray[cor[0]][cor[1]];
-                const bubbleBangScale = cc.scaleTo(0.5, 1.5);
-                const onComplete = cc.callFunc(function () {
-                    this.removeFromParent(true);
-                }, currentSprite);
+            matchByColor.forEach(cor => this._removeTileSprite(cor[0], cor[1]));
+        }
+    },
 
-                currentSprite.animationAction = [bubbleBangScale, onComplete];
-                this.animationQueue.push(currentSprite);
+    _removeTileSprite(i, j) {
+        if (this.tileArray[i][j] === null || this.tileArray[i][j] === "x") {
+            return true;
+        }
 
-                this.tileArray[cor[0]][cor[1]] = null;
-            });
+        if (this.tileArray[i][j].isThunder) {
+            this._removeThunderTile(i, j);
+        }
+
+        const currentSprite = this.tileArray[i][j];
+
+        const bubbleBangScale = cc.scaleTo(0.5, 1.5);
+        const onComplete = cc.callFunc(function () {
+            this.removeFromParent(true);
+        }, currentSprite);
+
+        currentSprite.animationAction = [bubbleBangScale, onComplete];
+        this.animationQueue.push(currentSprite);
+
+        this.tileArray[i][j] = null;
+    },
+
+    _removeThunderTile(i, j) {
+        const currentSprite = this.tileArray[i][j];
+
+        for (let c = 0; c < this.tileArray.length; c++) {
+            if (currentSprite.isThunder === "vertically") {
+                (i !== c) && this._removeTileSprite(c, j);
+            }
+
+            if (currentSprite.isThunder === "horizontally") {
+                (j !== c) && this._removeTileSprite(i, c);
+            }
         }
     },
 
@@ -198,8 +266,13 @@ const BallsLayer = cc.Layer.extend({
         const currentSprite = (this.tileArray[tile.row] || [])[tile.col];
 
         if (typeof(currentSprite) === "object" && currentSprite !== null) {
-            this._enabledSelect(currentSprite);
             this.visitedTiles[tile.row + "-" + tile.col] = tile;
+
+            if (currentSprite.getOpacity() === 128) {
+                this._doubleClick(currentSprite, tile);
+            }
+
+            this._enabledSelect(currentSprite);
         }
     },
 
@@ -211,7 +284,14 @@ const BallsLayer = cc.Layer.extend({
 
     _enabledSelect(currentSprite) {
         currentSprite.setOpacity(128);
-        currentSprite.picked = true;
+    },
+
+    _doubleClick(currentSprite, tile) {
+        if (currentSprite.isThunder) {
+            this._removeTileSprite(tile.row, tile.col);
+            this._next();
+            this.visitedTiles = {};
+        }
     },
 
     _onMouseUp() {
@@ -252,7 +332,6 @@ const BallsLayer = cc.Layer.extend({
 
     _disableSelect(sprite) {
         sprite.setOpacity(255);
-        sprite.picked = false;
     },
 
     _addTile: function (y, x, cell) {
@@ -263,7 +342,7 @@ const BallsLayer = cc.Layer.extend({
 
             //for test value in level
             tileTypes.forEach((nameColor, i) => {
-                if(cell === nameColor[0]){
+                if (cell === nameColor[0]) {
                     randomTile = i;
                 }
             });
@@ -272,7 +351,6 @@ const BallsLayer = cc.Layer.extend({
             const sprite = cc.Sprite.createWithSpriteFrame(spriteFrame);
 
             sprite.val = randomTile;
-            sprite.picked = false;
 
             this.addChild(sprite, 0);
 
