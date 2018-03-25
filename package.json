@@ -1,0 +1,28 @@
+{
+  "name": "three-in-a-row-cocos2d",
+  "version": "1.0.0",
+  "description": "[demo](https://bastsoft.github.io/three-in-a-row-cocos2d-js/)",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bastsoft/three-in-a-row-cocos2d-js.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bastsoft/three-in-a-row-cocos2d-js/issues"
+  },
+  "homepage": "https://github.com/bastsoft/three-in-a-row-cocos2d-js#readme",
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.4",
+    "webpack": "^4.2.0",
+    "webpack-cli": "^2.0.13"
+  }
+}
