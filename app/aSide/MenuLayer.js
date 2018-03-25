@@ -1,20 +1,27 @@
+import model from "../levelModel.js";
+
 const MenuLayer = cc.Layer.extend({
     ctor() {
         this._super();
 
-        const item1 = new cc.MenuItemFont("Бустер", this.onPushBooster, this);
-        const item2 = new cc.MenuItemFont("Окно проигрыша", this.onPushWindowLoose, this);
-        const item3 = new cc.MenuItemFont("Окно выигрыша", this.onPushWinWindow, this);
+        cc.MenuItemFont.setFontName("Arial");
+        cc.MenuItemFont.setFontSize(50);
 
-        const menu = new cc.Menu(item1, item2, item3);
+        this.item = new cc.MenuItemFont("Бустер", this.onPushBooster, this);
+        const item2 = new cc.MenuItemFont("проигрыш", this.onPushWindowLoose, this);
+        const item3 = new cc.MenuItemFont("выигрыш", this.onPushWinWindow, this);
+
+        const menu = new cc.Menu(this.item, item2, item3);
 
         menu.alignItemsVertically();
         menu.setPosition(0, 0);
 
         this.addChild(menu);
     },
+
     onPushBooster() {
-        cc.log("onPushBooster!");
+        this.item.enabled = false;
+        model.boost = true;
     },
 
     onPushWinWindow() {

@@ -13,6 +13,7 @@ const model = {
         "darkGray": cc.color(136, 136, 136),
         "whiteGray": cc.color(177, 177, 177)
     },
+    tileSize: 62,
     board: [
         ["", "", "", "", "", "x", "x", "x", "x"],
         ["", "", "", "", "", "x", "x", "x", "x"],
@@ -24,12 +25,12 @@ const model = {
         ["", "", "", "", "", "", "", "", ""],
         ["", "", "", "", "", "", "", "", ""]
     ],
-    tileSize: 62,
     countMoves: 12,
     goal: {
         count: 10,
         color: "red"
-    }
+    },
+    boost: false
 };
 
 model.goal.val = model.ballsColor.indexOf(model.goal.color);

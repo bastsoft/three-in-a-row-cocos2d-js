@@ -274,6 +274,10 @@ const BallsLayer = cc.Layer.extend({
         if (typeof(currentSprite) === "object" && currentSprite !== null) {
             this.visitedTiles[tile.row + "-" + tile.col] = tile;
 
+            if (model.boost) {
+                this._clickBoost(tile);
+            }
+
             if (currentSprite.getOpacity() === 128) {
                 this._doubleClick(currentSprite, tile);
             }
@@ -292,12 +296,21 @@ const BallsLayer = cc.Layer.extend({
         currentSprite.setOpacity(128);
     },
 
+    _clickBoost(tile) {
+        this._removeTileAndNext(tile);
+        model.boost = false;
+    },
+
     _doubleClick(currentSprite, tile) {
         if (currentSprite.isThunder) {
-            this._removeTileSprite(tile.row, tile.col);
-            this._next();
-            this.visitedTiles = {};
+            this._removeTileAndNext(tile);
         }
+    },
+
+    _removeTileAndNext(tile) {
+        this._removeTileSprite(tile.row, tile.col);
+        this._next();
+        this.visitedTiles = {};
     },
 
     _onMouseUp() {
