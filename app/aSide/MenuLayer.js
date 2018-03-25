@@ -8,28 +8,34 @@ const MenuLayer = cc.Layer.extend({
         cc.MenuItemFont.setFontSize(50);
 
         this.item = new cc.MenuItemFont("Бустер", this.onPushBooster, this);
-        const item2 = new cc.MenuItemFont("проигрыш", this.onPushWindowLoose, this);
-        const item3 = new cc.MenuItemFont("выигрыш", this.onPushWinWindow, this);
 
-        const menu = new cc.Menu(this.item, item2, item3);
+        const menu = new cc.Menu(this.item);
 
         menu.alignItemsVertically();
         menu.setPosition(0, 0);
 
         this.addChild(menu);
+
+        this._listener = cc.EventListener.create({
+            event: cc.EventListener.CUSTOM,
+            eventName: "emitChangeLevelModel",
+            callback: () => {
+                this.item.enabled = !model.boost.used;
+            }
+        });
+
+        cc.eventManager.addListener(this._listener, 1);
+    },
+
+    onExit: function () {
+        cc.eventManager.removeListener(this._listener);
+        this._super();
     },
 
     onPushBooster() {
-        this.item.enabled = false;
-        model.boost = true;
-    },
-
-    onPushWinWindow() {
-        cc.eventManager.dispatchEvent(new cc.EventCustom("show_layer_win"));
-    },
-
-    onPushWindowLoose() {
-        cc.eventManager.dispatchEvent(new cc.EventCustom("show_layer_loose"));
+        model.boost.used = true;
+        model.boost.enable = true;
+        this.item.enabled = !model.boost.used;
     }
 });
 

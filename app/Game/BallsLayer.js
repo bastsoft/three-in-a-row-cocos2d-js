@@ -1,42 +1,51 @@
 import model from '../levelModel.js';
 
 const BallsLayer = cc.Layer.extend({
-    visitedTiles: {},
     speedAnimation: 0.5,
-    animationQueue: [],
 
     onEnter: function () {
         this._super();
-
+        this.visitedTiles = {};
+        this.animationQueue = [];
         this.width = model.sizeBoard;
         this.height = model.sizeBoard;
 
         this.tileArray = model.board.map((row, i) => row.map((cellText, j) => this._addTile(i, j, cellText)));
 
-        this.mouseListener = cc.EventListener.create({
+        this.touchListener = cc.EventListener.create({
             event: cc.EventListener.MOUSE,
             onMouseDown: this._onMouseDown.bind(this),
             onMouseUp: this._onMouseUp.bind(this),
             onMouseMove: this._onMouseMove.bind(this)
         });
 
-        this.touchListener = cc.eventManager.addListener({
-            event: cc.EventListener.TOUCH_ONE_BY_ONE,
-            swallowTouches: true,
-            onTouchBegan: this._onMouseDown.bind(this),
-            onTouchMoved: this._onMouseMove.bind(this),
-            onTouchEnded: this._onMouseUp.bind(this),
-            onTouchCancelled: this._onMouseUp.bind(this)
+        this._listenerOnShowPopup = cc.EventListener.create({
+            event: cc.EventListener.CUSTOM,
+            eventName: "show_popup",
+            callback: () => {
+                cc.eventManager.removeListener(this.touchListener);
+                this.pauseListener = true;
+            }
+        }, this);
+
+        this._listenerOnShowPopup = cc.EventListener.create({
+            event: cc.EventListener.CUSTOM,
+            eventName: "close_popup",
+            callback: () => {
+                this.pauseListener && cc.eventManager.addListener(this.touchListener);
+                this.pauseListener = false;
+            }
         }, this);
 
         cc.eventManager.addListener(this.touchListener, this);
-        cc.eventManager.addListener(this.mouseListener, this);
+        cc.eventManager.addListener(this._listenerOnShowPopup, this);
 
         this._next();
     },
 
     onExit: function () {
-        cc.eventManager.removeListener(this.mouseListener);
+        cc.eventManager.removeListener(this.touchListener);
+        cc.eventManager.removeListener(this._listenerOnShowPopup);
         this._super();
     },
 
@@ -289,7 +298,7 @@ const BallsLayer = cc.Layer.extend({
         if (typeof(currentSprite) === "object" && currentSprite !== null) {
             this.visitedTiles[tile.row + "-" + tile.col] = tile;
 
-            if (model.boost) {
+            if (model.boost.enable) {
                 this._clickBoost(tile);
             }
 
@@ -313,7 +322,7 @@ const BallsLayer = cc.Layer.extend({
 
     _clickBoost(tile) {
         this._removeTileAndNext(tile);
-        model.boost = false;
+        model.boost.enable = false;
     },
 
     _doubleClick(currentSprite, tile) {
@@ -341,25 +350,26 @@ const BallsLayer = cc.Layer.extend({
             const firstSprite = this.tileArray[row0][col0];
             const secondSprite = this.tileArray[row1][col1];
 
-            if ((difRow + difCol) === 1) {
-                const moveAction1 = cc.MoveTo.create(this.speedAnimation, new cc.Point(firstSprite.x, firstSprite.y));
-                const moveAction2 = cc.MoveTo.create(this.speedAnimation, new cc.Point(secondSprite.x, secondSprite.y));
+            if (firstSprite && secondSprite) {
+                if ((difRow + difCol) === 1) {
+                    const moveAction1 = cc.MoveTo.create(this.speedAnimation, new cc.Point(firstSprite.x, firstSprite.y));
+                    const moveAction2 = cc.MoveTo.create(this.speedAnimation, new cc.Point(secondSprite.x, secondSprite.y));
 
+                    const onComplete = cc.callFunc(function () {
+                        this._next();
+                    }, this);
 
-                const onComplete = cc.callFunc(function () {
-                    this._next();
-                }, this);
+                    secondSprite.runAction(cc.sequence(moveAction1, onComplete));
+                    firstSprite.runAction(moveAction2);
 
-                secondSprite.runAction(cc.sequence(moveAction1, onComplete));
-                firstSprite.runAction(moveAction2);
+                    this.tileArray[row0][col0] = secondSprite;
+                    this.tileArray[row1][col1] = firstSprite;
+                    model.setMove();
+                }
 
-                this.tileArray[row0][col0] = secondSprite;
-                this.tileArray[row1][col1] = firstSprite;
-                model.setMove();
+                this._disableSelect(firstSprite);
+                this._disableSelect(secondSprite);
             }
-
-            this._disableSelect(firstSprite);
-            this._disableSelect(secondSprite);
 
             this.visitedTiles = {};
         }

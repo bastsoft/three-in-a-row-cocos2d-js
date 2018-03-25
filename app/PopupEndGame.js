@@ -9,6 +9,19 @@ const PopupEndGame = cc.LayerColor.extend({
         const ws = cc.director.getWinSize();
         const grayColor = cc.color(100, 100, 100, 0);
 
+        this.touchListener = cc.EventListener.create({
+            event: cc.EventListener.MOUSE,
+            onMouseDown: () => true,
+            onMouseUp: () => true,
+            onMouseMove: () => true
+        });
+
+        //this.touchListener.setSwallowTouches(true);
+
+        window.touchListener = this.touchListener;
+        cc.eventManager.addListener(this.touchListener, this);
+
+
         this.changeWidthAndHeight(ws.width - 10, ws.height - 10);
         this.setColor(grayColor);
         this.ignoreAnchorPointForPosition(false);
@@ -54,15 +67,16 @@ const PopupEndGame = cc.LayerColor.extend({
     },
 
     onPushRestart() {
-        cc.log("onPushRestart");
+        cc.eventManager.dispatchEvent(new cc.EventCustom("close_popup"));
+        cc.eventManager.dispatchEvent(new cc.EventCustom("restart"));
     },
 
     onPushExit() {
-        cc.eventManager.dispatchEvent(new cc.EventCustom("close_popup"));
+        window.close();
     },
 
     onPushAddStep() {
-        model.setMove(-1);
+        model.setMove(-5);
         cc.eventManager.dispatchEvent(new cc.EventCustom("close_popup"));
     }
 });

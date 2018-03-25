@@ -8,19 +8,33 @@ const MainScene = cc.Scene.extend({
     onEnter: function () {
         this._super();
 
-        const aside = new ASideLayer();
-        const gameLayer = new LayoutLayer();
+        this.aside = new ASideLayer();
+        this.gameLayer = new LayoutLayer();
 
         cc.spriteFrameCache.addSpriteFrames(...globes);
 
-        gameLayer.init();
-
-        this.addChild(aside);
-        this.addChild(gameLayer);
-        this._createWinPopup();
-        this._createLoosePopup();
-
+        this.addChild(this.aside);
+        this.addChild(this.gameLayer);
         model.init();
+        this.gameLayer.init();
+
+        this._listenerOnShowPopup = cc.EventListener.create({
+            event: cc.EventListener.CUSTOM,
+            eventName: "show_popup",
+            callback: (event) => {
+                const isWin = event.getUserData();
+
+                const currentChild = new PopupEndGame(isWin);
+
+                if (this.currentChild) {
+                    this.removeChild(this.currentChild, true);
+                }
+
+                this.addChild(currentChild);
+
+                this.currentChild = currentChild;
+            }
+        });
 
         this._listenerOnClosePopup = cc.EventListener.create({
             event: cc.EventListener.CUSTOM,
@@ -31,36 +45,30 @@ const MainScene = cc.Scene.extend({
             }
         });
 
+        this._listenerOnRestart = cc.EventListener.create({
+            event: cc.EventListener.CUSTOM,
+            eventName: "restart",
+            callback: () => {
+                this.removeChild(this.gameLayer);
+
+                this.gameLayer = new LayoutLayer();
+                this.addChild(this.gameLayer);
+
+                this.gameLayer.init();
+                model.init();
+            }
+        });
+
+        cc.eventManager.addListener(this._listenerOnShowPopup, 1);
         cc.eventManager.addListener(this._listenerOnClosePopup, 1);
+        cc.eventManager.addListener(this._listenerOnRestart, 1);
     },
 
     onExit: function () {
+        cc.eventManager.removeListener(this._listenerOnShowPopup);
         cc.eventManager.removeListener(this._listenerOnClosePopup);
+        cc.eventManager.removeListener(this._listenerOnRestart);
         this._super();
-    },
-
-    _createWinPopup() {
-        this._addListenerToPopup(true);
-    },
-
-    _createLoosePopup() {
-        this._addListenerToPopup(false);
-    },
-
-    _addListenerToPopup(isWin) {
-        const currentChild = new PopupEndGame(isWin);
-
-        cc.eventManager.addListener(cc.EventListener.create({
-            event: cc.EventListener.CUSTOM,
-            eventName: isWin ? "show_layer_win" : "show_layer_loose",
-            callback: () => {
-                if (this.currentChild) {
-                    this.removeChild(this.currentChild, true);
-                }
-                this.addChild(currentChild);
-                this.currentChild = currentChild;
-            }
-        }), 1);
     }
 });
 

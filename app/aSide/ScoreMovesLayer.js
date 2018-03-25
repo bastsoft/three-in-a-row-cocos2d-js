@@ -1,3 +1,5 @@
+import model from "../levelModel.js";
+
 const ScoreMovesLayer = cc.Layer.extend({
     onEnter: function () {
         this._super();
@@ -6,11 +8,9 @@ const ScoreMovesLayer = cc.Layer.extend({
 
         this._listener1 = cc.EventListener.create({
             event: cc.EventListener.CUSTOM,
-            eventName: "change_count_moves",
-            callback: (event) => {
-                const countMoves = event.getUserData();
-
-                this.updateLabel(countMoves);
+            eventName: "emitChangeLevelModel",
+            callback: () => {
+                this.updateLabel(model.countMoves);
             }
         });
 

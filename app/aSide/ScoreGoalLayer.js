@@ -9,11 +9,9 @@ const ScoreGoalLayer = cc.Layer.extend({
 
         this._listener = cc.EventListener.create({
             event: cc.EventListener.CUSTOM,
-            eventName: "change_goal_count",
-            callback: (event) => {
-                const count = event.getUserData();
-
-                this.updateLabel(count);
+            eventName: "emitChangeLevelModel",
+            callback: () => {
+                this.updateLabel(model.goal.count);
             }
         });
 
