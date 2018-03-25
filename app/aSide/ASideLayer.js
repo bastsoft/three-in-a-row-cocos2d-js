@@ -1,5 +1,5 @@
 import ScoreMovesLayer from "./ScoreMovesLayer.js";
-import ScoreTaskLayer from "./ScoreTaskLayer.js";
+import ScoreGoalLayer from "./ScoreGoalLayer.js";
 import MenuLayer from "./MenuLayer.js";
 import model from '../levelModel.js';
 
@@ -17,7 +17,7 @@ const ASideLayer = cc.LayerColor.extend({
         scoreStepLayer.setPosition(cc.p(size.width / 2, size.height - 100));
         this.addChild(scoreStepLayer);
 
-        const scoreTaskLayer = new ScoreTaskLayer();
+        const scoreTaskLayer = new ScoreGoalLayer();
         scoreTaskLayer.setPosition(cc.p(size.width / 2, size.height - 300));
         this.addChild(scoreTaskLayer);
 

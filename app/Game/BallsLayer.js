@@ -198,8 +198,7 @@ const BallsLayer = cc.Layer.extend({
             });
 
             const typeThunder = isHorizontally ? "horizontally" : "vertically";
-            const spriteFrame = cc.spriteFrameCache.getSpriteFrame(typeThunder);
-            const spriteThunder = cc.Sprite.createWithSpriteFrame(spriteFrame);
+            const spriteThunder = model.getBallSprite(typeThunder);
             firstSprite.addChild(spriteThunder, 1);
             spriteThunder.setPosition(
                 model.midTileSize - 10,
@@ -219,22 +218,30 @@ const BallsLayer = cc.Layer.extend({
     },
 
     _removeTileSprite(i, j) {
-        if (this.tileArray[i][j] === null || this.tileArray[i][j] === "x") {
-            return true;
+        const currentSprite = this.tileArray[i][j];
+        let ballsRemoveAnimation = cc.scaleTo(0.5, 1.5);
+
+        if (currentSprite === null || currentSprite === "x") {
+            return false;
         }
 
-        if (this.tileArray[i][j].isThunder) {
+        if (currentSprite.isThunder) {
             this._removeThunderTile(i, j);
         }
 
-        const currentSprite = this.tileArray[i][j];
+        if (currentSprite.val === model.goal.val) {
+            model.setCollectedGoals(currentSprite.isThunder ? 4 : 1);
+            ballsRemoveAnimation = cc.MoveTo.create(this.speedAnimation, new cc.Point(
+                model.layout.aside.width * -1,
+                model.layout.aside.height / 2
+            ));
+        }
 
-        const bubbleBangScale = cc.scaleTo(0.5, 1.5);
         const onComplete = cc.callFunc(function () {
             this.removeFromParent(true);
         }, currentSprite);
 
-        currentSprite.animationAction = [bubbleBangScale, onComplete];
+        currentSprite.animationAction = [ballsRemoveAnimation, onComplete];
         this.animationQueue.push(currentSprite);
 
         this.tileArray[i][j] = null;
@@ -336,19 +343,16 @@ const BallsLayer = cc.Layer.extend({
 
     _addTile: function (y, x, cell) {
         if (cell !== "x") {
-            const tileTypes = ["yellow", "red", "blue", "purple", "green", "orange"];
-
-            let randomTile = Math.floor(Math.random() * tileTypes.length);
+            let randomTile = Math.floor(Math.random() * model.ballsColor.length);
 
             //for test value in level
-            tileTypes.forEach((nameColor, i) => {
+            model.ballsColor.forEach((nameColor, i) => {
                 if (cell === nameColor[0]) {
                     randomTile = i;
                 }
             });
 
-            const spriteFrame = cc.spriteFrameCache.getSpriteFrame(tileTypes[randomTile]);
-            const sprite = cc.Sprite.createWithSpriteFrame(spriteFrame);
+            const sprite = model.getBallSprite(model.ballsColor[randomTile]);
 
             sprite.val = randomTile;
 

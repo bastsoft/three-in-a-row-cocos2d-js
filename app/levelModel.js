@@ -32,6 +32,8 @@ const model = {
     }
 };
 
+model.goal.val = model.ballsColor.indexOf(model.goal.color);
+
 model.board = model.board.reverse();
 model.midTileSize = model.tileSize / 2;
 
@@ -53,8 +55,31 @@ model.setMidPoint = function (size) {
 };
 
 model.setMove = function () {
-    this.countMoves--;
+    if (this.countMoves) {
+        this.countMoves--;
+    }
+
     this.changeCountMovesEvent();
+};
+
+model.setCollectedGoals = function (count = 1) {
+    if (model.goal.count) {
+        model.goal.count = model.goal.count - count;
+    }
+
+    this.changeGoalCountEvent();
+};
+
+model.getBallSprite = function (type) {
+    const spriteFrame = cc.spriteFrameCache.getSpriteFrame(type);
+
+    return cc.Sprite.createWithSpriteFrame(spriteFrame);
+};
+
+model.changeGoalCountEvent = function () {
+    const event = new cc.EventCustom("change_goal_count");
+    event.setUserData(model.goal.count);
+    cc.eventManager.dispatchEvent(event);
 };
 
 model.changeCountMovesEvent = function () {
@@ -65,6 +90,7 @@ model.changeCountMovesEvent = function () {
 
 model.init = function () {
     this.changeCountMovesEvent();
+    this.changeGoalCountEvent();
 };
 
 export default model;
