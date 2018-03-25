@@ -1,3 +1,5 @@
+import model from "./levelModel.js";
+
 const PopupEndGame = cc.LayerColor.extend({
     ctor: function (isWin = true) {
         this._super();
@@ -14,10 +16,18 @@ const PopupEndGame = cc.LayerColor.extend({
         this.setBlendFunc(cc.SRC_ALPHA, cc.ONE);
 
         const winSize = this.getContentSize();
+
+        const layer2 = new cc.LayerColor(model.colorBoardTitle.darkGray, ws.width / 2, ws.height / 1.5);
+        layer2.ignoreAnchorPointForPosition(true);
+        layer2.setBlendFunc(false, false);
+        this.addChild(layer2);
+        layer2.x = ws.width / 4;
+        layer2.y = ws.height / 4;
+
         const font = new cc.LabelTTF();
 
         font.string = this.isWin ? "Ты выиграл" : "Ты проиграл";
-        font.font = "100px 'Arial'";
+        font.font = "85px 'Arial'";
         font.fillStyle = cc.color(0, 0, 0);
         font.x = winSize.width / 2;
         font.y = winSize.height - 100;
@@ -31,7 +41,6 @@ const PopupEndGame = cc.LayerColor.extend({
         ].map((item) => {
             item.setFontSize(80);
             item.setFontName("Arial");
-
             return item;
         });
 
@@ -49,13 +58,12 @@ const PopupEndGame = cc.LayerColor.extend({
     },
 
     onPushExit() {
-        cc.eventManager.dispatchEvent(
-            new cc.EventCustom(this.isWin ? "hide_layer_win" : "hide_layer_loose")
-        );
+        cc.eventManager.dispatchEvent(new cc.EventCustom("close_popup"));
     },
 
     onPushAddStep() {
-        cc.log("onPushAddStep");
+        model.setMove(-1);
+        cc.eventManager.dispatchEvent(new cc.EventCustom("close_popup"));
     }
 });
 

@@ -55,20 +55,26 @@ model.setMidPoint = function (size) {
     this.midPoint = cc.p((size.width / 2) - this.sizeBoard / 2, (size.height / 2) - this.sizeBoard / 2);
 };
 
-model.setMove = function () {
-    if (this.countMoves) {
-        this.countMoves--;
+model.setMove = function (count = 1) {
+    this.countMoves = this.countMoves - count;
+
+    if (this.countMoves < 0) {
+        this.countMoves = 0;
     }
 
     this.changeCountMovesEvent();
+    this.checkWinAndLoose();
 };
 
 model.setCollectedGoals = function (count = 1) {
-    if (model.goal.count) {
-        model.goal.count = model.goal.count - count;
+    model.goal.count = model.goal.count - count;
+
+    if (model.goal.count < 0) {
+        model.goal.count = 0;
     }
 
     this.changeGoalCountEvent();
+    this.checkWinAndLoose();
 };
 
 model.getBallSprite = function (type) {
@@ -87,6 +93,16 @@ model.changeCountMovesEvent = function () {
     const event = new cc.EventCustom("change_count_moves");
     event.setUserData(model.countMoves);
     cc.eventManager.dispatchEvent(event);
+};
+
+model.checkWinAndLoose = function () {
+    if (this.goal.count === 0) {
+        cc.eventManager.dispatchEvent(new cc.EventCustom("show_layer_win"));
+    }
+
+    if (this.countMoves === 0) {
+        cc.eventManager.dispatchEvent(new cc.EventCustom("show_layer_loose"));
+    }
 };
 
 model.init = function () {

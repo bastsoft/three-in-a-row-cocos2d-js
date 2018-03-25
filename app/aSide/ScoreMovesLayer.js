@@ -1,5 +1,5 @@
 const ScoreMovesLayer = cc.Layer.extend({
-    ctor: function () {
+    onEnter: function () {
         this._super();
 
         this.init();

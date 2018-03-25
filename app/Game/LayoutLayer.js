@@ -16,7 +16,6 @@ const LayoutLayer = cc.LayerColor.extend({
         ));
         model.setMidPoint(this.getContentSize());
 
-
         const boardLayer = new BoardLayer();
         boardLayer.setPosition(model.midPoint);
         this.addChild(boardLayer);

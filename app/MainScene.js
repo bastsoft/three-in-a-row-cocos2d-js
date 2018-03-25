@@ -21,6 +21,22 @@ const MainScene = cc.Scene.extend({
         this._createLoosePopup();
 
         model.init();
+
+        this._listenerOnClosePopup = cc.EventListener.create({
+            event: cc.EventListener.CUSTOM,
+            eventName: "close_popup",
+            callback: () => {
+                this.removeChild(this.currentChild);
+                this.currentChild = null;
+            }
+        });
+
+        cc.eventManager.addListener(this._listenerOnClosePopup, 1);
+    },
+
+    onExit: function () {
+        cc.eventManager.removeListener(this._listenerOnClosePopup);
+        this._super();
     },
 
     _createWinPopup() {
@@ -37,13 +53,13 @@ const MainScene = cc.Scene.extend({
         cc.eventManager.addListener(cc.EventListener.create({
             event: cc.EventListener.CUSTOM,
             eventName: isWin ? "show_layer_win" : "show_layer_loose",
-            callback: this.addChild.bind(this, currentChild)
-        }), 1);
-
-        cc.eventManager.addListener(cc.EventListener.create({
-            event: cc.EventListener.CUSTOM,
-            eventName: isWin ? "hide_layer_win" : "hide_layer_loose",
-            callback: this.removeChild.bind(this, currentChild)
+            callback: () => {
+                if (this.currentChild) {
+                    this.removeChild(this.currentChild, true);
+                }
+                this.addChild(currentChild);
+                this.currentChild = currentChild;
+            }
         }), 1);
     }
 });

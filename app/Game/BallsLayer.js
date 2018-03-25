@@ -5,7 +5,7 @@ const BallsLayer = cc.Layer.extend({
     speedAnimation: 0.5,
     animationQueue: [],
 
-    ctor: function () {
+    onEnter: function () {
         this._super();
 
         this.width = model.sizeBoard;
@@ -13,16 +13,31 @@ const BallsLayer = cc.Layer.extend({
 
         this.tileArray = model.board.map((row, i) => row.map((cellText, j) => this._addTile(i, j, cellText)));
 
-        let touchListener = cc.EventListener.create({
+        this.mouseListener = cc.EventListener.create({
             event: cc.EventListener.MOUSE,
             onMouseDown: this._onMouseDown.bind(this),
             onMouseUp: this._onMouseUp.bind(this),
             onMouseMove: this._onMouseMove.bind(this)
         });
 
-        cc.eventManager.addListener(touchListener, this);
+        this.touchListener = cc.eventManager.addListener({
+            event: cc.EventListener.TOUCH_ONE_BY_ONE,
+            swallowTouches: true,
+            onTouchBegan: this._onMouseDown.bind(this),
+            onTouchMoved: this._onMouseMove.bind(this),
+            onTouchEnded: this._onMouseUp.bind(this),
+            onTouchCancelled: this._onMouseUp.bind(this)
+        }, this);
+
+        cc.eventManager.addListener(this.touchListener, this);
+        cc.eventManager.addListener(this.mouseListener, this);
 
         this._next();
+    },
+
+    onExit: function () {
+        cc.eventManager.removeListener(this.mouseListener);
+        this._super();
     },
 
     _next() {

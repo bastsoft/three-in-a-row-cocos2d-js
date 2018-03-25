@@ -1,7 +1,7 @@
 import model from '../levelModel.js';
 
 const BoardLayer = cc.Layer.extend({
-    ctor: function () {
+    onEnter: function () {
         this._super();
 
         this.width = model.sizeBoard;

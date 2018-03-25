@@ -1,7 +1,7 @@
 import model from "../levelModel.js";
 
 const MenuLayer = cc.Layer.extend({
-    ctor() {
+    onEnter() {
         this._super();
 
         cc.MenuItemFont.setFontName("Arial");

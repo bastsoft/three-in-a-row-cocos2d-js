@@ -4,7 +4,7 @@ const ScoreGoalLayer = cc.Layer.extend({
     score: 10,
     labelScore: null,
 
-    ctor: function () {
+    onEnter: function () {
         this._super();
 
         this._listener = cc.EventListener.create({
